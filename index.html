@@ -2,54 +2,424 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro PDF Builder</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Builder — vinstools</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
+        :root {
+            --bg: #fafafa;
+            --dot: #d1d5db;
+            --border: #e5e7eb;
+            --border-med: #d1d5db;
+            --text: #111111;
+            --text-muted: #6b7280;
+            --text-light: #9ca3af;
+            --card: #ffffff;
+            --surface: #f4f4f5;
+            --accent: #111111;
+            --green: #15803d;
+            --green-bg: #f0fdf4;
+            --green-border: #bbf7d0;
+            --red: #b91c1c;
+            --red-bg: #fef2f2;
+            --red-border: #fecaca;
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle, var(--dot) 1.2px, transparent 1.2px);
+            background-size: 22px 22px;
+            color: var(--text);
+            min-height: 100vh;
+            padding: clamp(20px, 5vw, 52px) clamp(14px, 4vw, 24px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .back-link {
+            width: 100%;
+            max-width: 820px;
+            margin-bottom: 20px;
+        }
+
+        .back-link a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            color: var(--text);
+        }
+
+        .app-header {
+            width: 100%;
+            max-width: 820px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--text);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .app-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .app-header p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 820px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: clamp(18px, 4vw, 28px);
+        }
+
+        #drop-zone {
+            border: 1.5px dashed var(--border-med);
+            border-radius: var(--radius);
+            padding: clamp(34px, 8vw, 58px) 20px;
+            background: var(--surface);
+            cursor: pointer;
+            transition: 0.2s ease;
+            text-align: center;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #drop-zone:hover,
+        #drop-zone.dragging {
+            border-color: var(--text);
+            background: #efefef;
+        }
+
+        .dz-icon {
+            width: 56px;
+            height: 56px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .dz-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .dz-sub {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .controls {
+            margin-top: 18px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .select {
+            flex: 1;
+            min-width: 180px;
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: white;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .btn {
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 11px 18px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.18s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-dark {
+            background: var(--text);
+            color: white;
+        }
+
+        .btn-dark:hover {
+            opacity: 0.88;
+        }
+
+        .status {
+            margin-top: 14px;
+            min-height: 22px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .image-list {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .image-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .image-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background: var(--text);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-thumb {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            background: white;
+        }
+
+        .image-name {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .remove-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid var(--red-border);
+            background: var(--red-bg);
+            color: var(--red);
+            cursor: pointer;
+            transition: 0.15s ease;
+        }
+
+        .remove-btn:hover {
+            background: #fee2e2;
+        }
+
+        .preview {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .preview-page {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: white;
+            overflow: hidden;
+        }
+
+        .preview-head {
+            padding: 10px 14px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .preview-grid {
+            padding: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .preview-grid img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+        }
+
+        .app-footer {
+            margin-top: 22px;
+            font-size: 12px;
+            color: var(--text-light);
+
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 999px;
+            background: var(--text-light);
+        }
+
+        @media(max-width: 640px) {
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn,
+            .select {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 p-6 flex justify-center">
+<body>
 
-    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6">
+    <div class="back-link">
+        <a href="https://vinsmark.github.io/vinstools/">
+            <i class="fas fa-arrow-left"></i>
+            vinstools
+        </a>
+    </div>
 
-        <h2 class="text-center text-blue-600 text-2xl font-bold mb-4">
-            <i class="fa-solid fa-file-pdf"></i> PDF Builder
-        </h2>
-
-        <div id="drop-zone"
-            class="border-2 border-dashed border-blue-500 rounded-xl p-8 text-center cursor-pointer hover:bg-blue-50 transition">
-
-            <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500 mb-2"></i>
-            <p class="font-semibold text-blue-600">Click or Drag Images</p>
-            <p class="text-xs text-gray-500">PNG, JPG</p>
+    <div class="app-header">
+        <div class="logo-icon">
+            <i class="fas fa-file-pdf"></i>
         </div>
 
-        <input type="file" id="file-input" multiple accept="image/*" hidden>
+        <div>
+            <h1>PDF Builder</h1>
+            <p>Upload images and export them into a PDF</p>
+        </div>
+    </div>
 
-        <div class="mt-4 flex gap-3">
-            <select id="layout" class="flex-1 p-2 border rounded-lg">
-                <option value="1">1 per page</option>
-                <option value="2">2 per page</option>
-                <option value="4">4 per page</option>
+    <div class="card">
+
+        <div id="drop-zone">
+            <div class="dz-icon">
+                <i class="fas fa-cloud-arrow-up"></i>
+            </div>
+
+            <div class="dz-title">
+                Drop images here or click to upload
+            </div>
+
+            <div class="dz-sub">
+                PNG, JPG, WEBP supported
+            </div>
+        </div>
+
+        <input type="file" id="file-input" hidden multiple accept="image/*">
+
+        <div class="controls">
+
+            <select id="layout" class="select">
+                <option value="1">1 image per page</option>
+                <option value="2">2 images per page</option>
+                <option value="4">4 images per page</option>
             </select>
 
-            <button id="export" class="flex-1 bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700">
-                <i class="fa-solid fa-file-export"></i> Export
+            <button id="export" class="btn btn-dark">
+                <i class="fas fa-file-export"></i>
+                Export PDF
             </button>
+
         </div>
 
-        <div id="image-list" class="mt-4 space-y-2"></div>
+        <div class="status" id="status"></div>
 
-        <div id="preview" class="mt-6 space-y-4"></div>
+        <div class="image-list" id="image-list"></div>
 
+        <div class="preview" id="preview"></div>
+
+    </div>
+
+    <div class="app-footer">
+        <span>vinstools</span>
+        <span class="footer-dot"></span>
+        <span>Simple. Fast. Free.</span>
     </div>
 
     <script>
@@ -58,59 +428,130 @@
         const imageList = document.getElementById("image-list");
         const preview = document.getElementById("preview");
         const layoutSelect = document.getElementById("layout");
+        const status = document.getElementById("status");
 
         let images = [];
 
         dropZone.onclick = () => fileInput.click();
 
-        fileInput.onchange = e => handleFiles(e.target.files);
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+            dropZone.addEventListener(ev, e => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
 
-        dropZone.ondragover = e => e.preventDefault();
-        dropZone.ondrop = e => {
-            e.preventDefault();
-            handleFiles(e.dataTransfer.files);
+        dropZone.addEventListener('dragenter', () => {
+            dropZone.classList.add('dragging');
+        });
+
+        dropZone.addEventListener('dragover', () => {
+            dropZone.classList.add('dragging');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragging');
+        });
+
+        dropZone.addEventListener('drop', e => {
+            dropZone.classList.remove('dragging');
+
+            if (e.dataTransfer.files.length) {
+                handleFiles(e.dataTransfer.files);
+            }
+        });
+
+        fileInput.onchange = e => {
+            if (e.target.files.length) {
+                handleFiles(e.target.files);
+            }
         };
 
+        function showStatus(type, message) {
+
+            const icons = {
+                success: '<i class="fas fa-circle-check"></i>',
+                error: '<i class="fas fa-triangle-exclamation"></i>',
+                loading: '<i class="fas fa-spinner fa-spin"></i>'
+            };
+
+            const colors = {
+                success: '#15803d',
+                error: '#b91c1c',
+                loading: '#6b7280'
+            };
+
+            status.innerHTML = `${icons[type]} ${message}`;
+            status.style.color = colors[type];
+        }
+
         function handleFiles(files) {
+
+            let count = 0;
+
             for (let file of files) {
+
+                if (!file.type.startsWith("image/")) continue;
+
                 images.push({
                     id: Math.random().toString(36).substr(2, 9),
                     file,
                     url: URL.createObjectURL(file)
                 });
+
+                count++;
             }
+
+            if (count > 0) {
+                showStatus("success", `${count} image(s) added`);
+            }
+
             renderList();
             renderPreview();
         }
 
         new Sortable(imageList, {
             animation: 150,
+
             onEnd: () => {
+
                 const ids = [...imageList.children].map(el => el.dataset.id);
-                images = ids.map(id => images.find(i => i.id === id));
+
+                images = ids.map(id =>
+                    images.find(i => i.id === id)
+                );
+
                 renderPreview();
             }
         });
 
         function renderList() {
+
             imageList.innerHTML = "";
 
             images.forEach((img, i) => {
+
                 const div = document.createElement("div");
+
+                div.className = "image-item";
                 div.dataset.id = img.id;
-                div.className = "flex items-center bg-gray-50 p-2 rounded-lg shadow";
 
                 div.innerHTML = `
-            <div class="w-6 h-6 bg-blue-600 text-white text-xs flex items-center justify-center rounded-full mr-3">
-                ${i + 1}
-            </div>
-            <img src="${img.url}" class="w-12 h-12 object-cover rounded mr-3">
-            <span class="text-sm flex-1">${img.file.name}</span>
-            <i class="fa-solid fa-xmark text-red-500 cursor-pointer"></i>
-        `;
+                    <div class="image-number">${i + 1}</div>
 
-                div.querySelector("i").onclick = () => {
+                    <img src="${img.url}" class="image-thumb">
+
+                    <div class="image-name">${img.file.name}</div>
+
+                    <button class="remove-btn">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                `;
+
+                div.querySelector(".remove-btn").onclick = () => {
+
                     images = images.filter(f => f.id !== img.id);
+
                     renderList();
                     renderPreview();
                 };
@@ -122,10 +563,13 @@
         layoutSelect.onchange = renderPreview;
 
         function chunk(arr, size) {
+
             let res = [];
+
             for (let i = 0; i < arr.length; i += size) {
                 res.push(arr.slice(i, i + size));
             }
+
             return res;
         }
 
@@ -134,27 +578,36 @@
             preview.innerHTML = "";
 
             const layout = parseInt(layoutSelect.value);
+
             const pages = chunk(images, layout);
 
             pages.forEach((group, index) => {
 
                 const page = document.createElement("div");
-                page.className = "bg-white border rounded-xl p-3 shadow";
+                page.className = "preview-page";
+
+                const header = document.createElement("div");
+                header.className = "preview-head";
+                header.textContent = `Page ${index + 1}`;
 
                 const grid = document.createElement("div");
+                grid.className = "preview-grid";
 
                 const cols = Math.ceil(Math.sqrt(group.length));
-                grid.className = "grid gap-2";
-                grid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+
+                grid.style.gridTemplateColumns =
+                    `repeat(${cols}, 1fr)`;
 
                 group.forEach(img => {
+
                     const el = document.createElement("img");
+
                     el.src = img.url;
-                    el.className = "w-full h-40 object-contain border rounded";
+
                     grid.appendChild(el);
                 });
 
-                page.innerHTML = `<p class="text-xs text-gray-500 mb-2">Page ${index + 1}</p>`;
+                page.appendChild(header);
                 page.appendChild(grid);
 
                 preview.appendChild(page);
@@ -162,30 +615,47 @@
         }
 
         async function fileToBuffer(file) {
+
             const img = new Image();
+
             const url = URL.createObjectURL(file);
 
             return new Promise(resolve => {
+
                 img.onload = () => {
+
                     const canvas = document.createElement("canvas");
+
                     canvas.width = img.width;
                     canvas.height = img.height;
-                    canvas.getContext("2d").drawImage(img, 0, 0);
+
+                    canvas.getContext("2d")
+                        .drawImage(img, 0, 0);
 
                     canvas.toBlob(async blob => {
                         resolve(await blob.arrayBuffer());
                     });
                 };
+
                 img.src = url;
             });
         }
 
         document.getElementById("export").onclick = async () => {
 
+            if (!images.length) {
+                showStatus("error", "Please upload images first.");
+                return;
+            }
+
+            showStatus("loading", "Generating PDF...");
+
             const { PDFDocument } = PDFLib;
+
             const pdf = await PDFDocument.create();
 
             const layout = parseInt(layoutSelect.value);
+
             const pages = chunk(images, layout);
 
             for (const group of pages) {
@@ -203,8 +673,20 @@
 
                 for (let i = 0; i < group.length; i++) {
 
-                    const buffer = await fileToBuffer(group[i].file);
-                    const img = await pdf.embedPng(buffer);
+                    const file = group[i].file;
+
+                    const buffer = await fileToBuffer(file);
+
+                    let img;
+
+                    if (
+                        file.type === "image/png" ||
+                        file.type === "image/webp"
+                    ) {
+                        img = await pdf.embedPng(buffer);
+                    } else {
+                        img = await pdf.embedJpg(buffer);
+                    }
 
                     const col = i % cols;
                     const row = Math.floor(i / cols);
@@ -212,7 +694,10 @@
                     const x = col * cellW;
                     const y = pageHeight - (row + 1) * cellH;
 
-                    const scale = Math.min(cellW / img.width, cellH / img.height);
+                    const scale = Math.min(
+                        cellW / img.width,
+                        cellH / img.height
+                    );
 
                     const w = img.width * scale;
                     const h = img.height * scale;
@@ -228,12 +713,20 @@
 
             const pdfBytes = await pdf.save();
 
-            const blob = new Blob([pdfBytes], { type: "application/pdf" });
+            const blob = new Blob(
+                [pdfBytes],
+                { type: "application/pdf" }
+            );
+
             const link = document.createElement("a");
 
             link.href = URL.createObjectURL(blob);
+
             link.download = "output.pdf";
+
             link.click();
+
+            showStatus("success", "PDF exported successfully!");
         };
     </script>
 
